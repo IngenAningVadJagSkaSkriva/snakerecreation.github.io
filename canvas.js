@@ -1,9 +1,10 @@
 const canvas = document.getElementById("canvas1");
 const ctx = canvas.getContext('2d');
 canvas.height = 25;
-canvas.width = 50;
+canvas.width = canvas.height * 2;
 var x = Math.round(canvas.width / 2);
 var y = Math.round(canvas.height / 2);
+var check = 0;
 var speedX = 0;
 var speedY = 0;
 var oldx = x;
@@ -26,9 +27,9 @@ var fruitY = RB(0,canvas.height);
 
 var array2D = (y,x) => {
     var array = [];
-    for(let i = 0; i < y; i++) {
+    for(let i = 0 - y; i < y + y; i++) {
         array[i] = [];
-        for(let j = 0; j < x; j++) {
+        for(let j = 0 - x; j < x + x; j++) {
             array[i][j] = null;
         }
     }
@@ -39,36 +40,43 @@ var map = array2D(canvas.height,canvas.width);
 window.addEventListener('resize', () => {
     display();
 })
-window.addEventListener("keydown", function (event) {
-    if (event.defaultPrevented) {
-    return;
+
+var s = 0;
+var keys = [];
+onkeydown = onkeyup = (e) => {
+    keys[e.keyCode] = e.type == 'keydown';
+    if(s == 0) {
+        if((keys[68] || keys[39]) && s == 0) {//d and right arrow
+            if(speedX == 0) speedX = 1;
+            speedY = 0;
+            keys[68] = 0;
+            keys[39] = 0;
+            s = 1;
+        }
+        if((keys[65] || keys[37]) && s == 0) {//a and left arrow
+            if(speedX == 0) speedX = -1;
+            speedY = 0;
+            keys[65] = 0;
+            keys[37] = 0;
+            s = 1;
+        }
+        if((keys[87] || keys[38]) && s == 0) {//w and up arrrow
+                if(speedY == 0) speedY = -1
+                speedX = 0;
+                keys[87] = 0;
+                keys[38] = 0;
+                s = 1;
+        }
+        if((keys[40] || keys[83]) && s == 0) { //s and down arrow
+            if(speedY == 0) speedY = 1;
+            speedX = 0;
+            keys[40] = 0;
+            keys[83] = 0;
+            s = 1;
+        }
     }
-    switch (event.key) {
-    case "ArrowDown":
-        if(speedY == 0) speedY = 1;
-       speedX = 0;
-      break;
-    case "ArrowUp":
-        if(speedY == 0) speedY = -1;
-        speedX = 0;
-      break;
-    case "ArrowLeft":
-        if(speedX == 0) speedX = -1;
-        speedY = 0;
-      break;
-    case "ArrowRight":
-       if(speedX == 0) speedX = 1;
-       speedY = 0;
-      break;
-    case "e":
-        alert(xt);
-        alert(yt);
-        break;
-    default:
-      return;
     }
-    event.preventDefault();
-    }, true);
+
 var display = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "red";
@@ -104,6 +112,7 @@ var lose = () => {
 
 //game
 var game = () => {
+    check = 0;
     oldx = x;
     oldy = y;
     for(let i = fatcount + 1; i > -1; i--) {
@@ -120,15 +129,27 @@ var game = () => {
     }
     x += speedX;
     y += speedY;
-    if(map[y][x] == 3 || x <= 0 || y <= 0 || x >= canvas.width - 1 || y >= canvas.height - 1) {
+    if(map[y][x] == 3) {
         lose();
+    }
+    if(x < 0) {
+        x = canvas.width;
+    } else if(x >= canvas.width) {
+        x = 0;
+    }
+    if(y < 0) {
+        y = canvas.height;
+    } else if(y >= canvas.height) {
+        y = 0;
     }
     map[oldy][oldx] = 3;
     map[y][x] = 1;
     map[fruitY][fruitX] = 2;
     map[yt[fatcount]][xt[fatcount]] = null;
+    check = 1;
     display();
     setTimeout(() => {
+        s = 0;
         requestAnimationFrame(game);
         document.title = x + "  " + y;
     },1000/15)
