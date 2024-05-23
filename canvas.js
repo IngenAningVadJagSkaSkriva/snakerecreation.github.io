@@ -11,7 +11,9 @@ var oldx = x;
 var oldy = y;
 var xt = [];
 var yt = [];
+var p = 0;
 var fatcount = 1;
+alert("PRESS P TO PAUSE/UNPAUSE!");
 
 for(let i = 0; i < canvas.height * canvas.width; i++) {
     xt[i] = 0;
@@ -46,6 +48,7 @@ var keys = [];
 onkeydown = onkeyup = (e) => {
     keys[e.keyCode] = e.type == 'keydown';
     if(s == 0) {
+        if(p == 0) {
         if((keys[68] || keys[39]) && s == 0) {//d and right arrow
             if(speedX == 0) speedX = 1;
             speedY = 0;
@@ -73,6 +76,15 @@ onkeydown = onkeyup = (e) => {
             keys[40] = 0;
             keys[83] = 0;
             s = 1;
+        }
+    }
+        if(keys[80]) {
+            if(p == 1) {
+                p = 0;
+            } else if(p == 0) {
+                p = 1;
+            }
+            keys[80] = 0;
         }
     }
     }
@@ -112,6 +124,7 @@ var lose = () => {
 
 //game
 var game = () => {
+    if(p != 1) {
     check = 0;
     oldx = x;
     oldy = y;
@@ -151,7 +164,9 @@ var game = () => {
     setTimeout(() => {
         s = 0;
         requestAnimationFrame(game);
-        document.title = x + "  " + y;
     },1000/15)
+} else if(p == 1) {
+    requestAnimationFrame(game);
+}
 }
 game();
